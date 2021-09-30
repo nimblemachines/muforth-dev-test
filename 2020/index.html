@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="copyright" content="All content on muforth.dev is copyrighted. All rights are reserved." />
+<meta name="keywords" content="2020, journal, blog" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/-/screen.css" type="text/css" />
+<link rel="icon" href="/-/9s08_hc595_150x150.jpg" type="image/jpeg" />
+<link rel="canonical" href="https://www.muforth.dev/2020/" />
+<title>2020 journal &ndash; muforth</title>
+</head>
+<body>
+
+<div id="header">
+<h1>2020 journal</h1>
+<hr />
+</div>
+
+<div id="content">
+<h3 id="april-18-14:55"><a href="#april-18-14:55">2020 April 18 14:55</a></h3>
+<p>I recently discovered two very interesting historical (and, I suppose, <em>historic</em>) Forth documents:</p>
+<ul>
+<li>the <a href="http://library.nrao.edu/public/memos/comp/CDIR_17.pdf">NRAO FORTH manual for the PDP-11</a>, written by Elizabeth Rather and Chuck Moore</li>
+<li>the <a href="https://www.forth.com/resources/archive-forth-systems-software/">technical manual and source code for the RCA 1802 version of microFORTH</a>, courtesy of <a href="https://www.forth.com/">FORTH, Inc</a>.</li>
+</ul>
+<p>The NRAO manual, written in 1974, contains a very concise but readable (and even &ldquo;friendly&rdquo;) introduction to Forth, and a detailed description (with some code in the appendix) of the PDP-11 assembler. Forth assemblers have a certain &ldquo;flavor&rdquo;, and this description captures it well.</p>
+<p>The microFORTH source code, circa 1978, should be read in conjunction with the <a href="/-/cdp1802ac-3.pdf">1802 datasheet</a>. Curiously, this chip is <a href="https://www.renesas.com/us/en/products/space-harsh-environment/harsh-environment/microprocessors-peripherals/device/CDP1802A.html">still available from Renesas</a> in a ceramic 40 pin DIP suitable for &ldquo;harsh environments&rdquo;! (Renesas acquired Intersil, whose name is still on the datasheet.)</p>
+<p>microFORTH includes a cross-compiler, which is extensively documented in the accompanying technical manual. This is one of the darkest corners of Forth, and is something I care deeply about. Cross-compilation is the sole <em>raison d'&ecirc;tre</em> for muforth. I haven&rsquo;t studied the microFORTH code closely, but I hope to learn something from it. The cross-compilers in muforth are all slightly different from each other, and none of them feels quite &ldquo;right&rdquo;.</p>
+<p>FORTH, Inc also published a <a href="https://www.forth.com/downloads/ANS/XCpaper.pdf">paper proposing a cross-compilation &ldquo;standard&rdquo; for Forth</a> and an accompanying <a href="https://www.forth.com/downloads/ANS/XCapp5.pdf">glossary</a>.</p>
+<p>After re-reading these, I tried a few experiments with muforth, to apply the idea of &ldquo;scopes&rdquo; to one of the cross-compilers. I had very mixed results and have shelved the investigation for now.</p>
+<p>After <em>that</em>, I started thinking about getting muforth to run under UEFI, and re-researched and re-read everything I could. Before I got too far along &ndash; I think I was reading the <a href="https://docs.microsoft.com/en-us/windows/win32/debug/pe-format">PE32+ image file specification</a> and trying to follow along in the <a href="https://github.com/tianocore/edk2/blob/master/MdePkg/Library/BasePeCoffLib/BasePeCoff.c">tianocore/EDK2 code</a> &ndash; I had to shelve that as well! UEFI kind of makes my stomach churn, and tianocore/EDK2 seems way too complicated. I still think that using muforth to explore UEFI is an interesting idea, and I&rsquo;m sure I will return to it, but part of me hopes that something else &ndash; maybe <a href="https://www.linuxboot.org/">LinuxBoot</a>? &ndash; will win the firmware wars.</p>
+<hr />
+<h3 id="march-20-18:29"><a href="#march-20-18:29">2020 March 20 18:29</a></h3>
+<p>I&rsquo;m sitting at home here in Calfornia, on voluntary lockdown to slow the spread of corona virus (COVID-19). It&rsquo;s a scary time, and because I am stuck at home, it seemed like a good time to think about, write about, and work on muforth. What else am I going to do?</p>
+<p>I&rsquo;ve been thinking a lot recently about which platforms (targets) I want to focus on. muforth is a bit scattered; there are a bunch of targets that have just the bare beginnings of support (eg, PIC18), others that have working Forth kernels but no real hardware support (eg, Cortex-M and RISC-V), and one that has been incredibly useful even though I never finished the Forth compiler (<a href="https://www.nimblemachines.com/freescale-s08/">Freescale HCS08</a>).</p>
+<p>My desiderata for targets are the following:</p>
+<ul>
+<li>a target architecture that is simple and approachable for people new to microcontrollers <strong>AND</strong></li>
+<li><strong>EITHER</strong> chips available in DIP form factor for easy breadboarding and experimenting, <strong>OR</strong> very inexpensive boards ($20 or less) available, ideally from the silicon vendor</li>
+</ul>
+<p>The ideal is that someone could get started exploring and hacking using only the chip or board and muforth. No other software or programming tools should be necessary.</p>
+<h4 id="chips-and-dip"><a href="#chips-and-dip">Chips and DIP?</a></h4>
+<p>Unfortunately, very few microcontrollers are available in DIP any more. It used to be that a number of S08 parts were avaialable in DIP packages. While a few still are, they are generally small and underpowered. The S08 also requires an external programmer of some kind to get boostrapped. The chips arrive from the factory totally blank.</p>
+<p>TI&rsquo;s MSP430 has a few DIP members too. I&rsquo;ve had success getting the <a href="https://www.ti.com/product/MSP430G2553">MSP430G2553</a> working. It&rsquo;s a bit of a pain, but using the BSL (bootstrap loader) it&rsquo;s possible to get my serial chat code burned onto the chip.</p>
+<p>The most promising targets available in DIP are from Microchip. In particular, the PIC18, PIC24, and PIC32 variants. The PICs are all interesting because they are very inexpensive, and several parts have a built-in USB interface. (I&rsquo;m all about connecting to microcontrollers via USB, since it&rsquo;s all we have on modern machines, and having control of the USB conversation, by having some kind of custom &ldquo;USB chat code&rdquo; running on the chip, can make things much easier too.)</p>
+<p>The PIC18 is a bit limited, and is an 8-bit part. The PIC24, while a bit more expensive, runs faster and has more power &ndash; it&rsquo;s a 16-bit processor. The PIC32 is an interesting beast: it&rsquo;s actually a MIPS32 core! In a DIP! For a few dollars! Could be an interesting adventure.</p>
+<p>All these Microchip parts have a downside, however: they all require an external programmer for bootstrapping. I&rsquo;ve successfully used my <a href="https://www.nimblemachines.com/js16-usb-board/">JS16 USB board</a> to do this, and I have a PICKit in a box somewhere. But it&rsquo;s not possible for someone to simply breadboard a chip and start hacking, with no external hardware.</p>
+<h4 id="vendor-boards-a-turnkey-solution"><a href="#vendor-boards-a-turnkey-solution">Vendor boards &ndash; a turnkey solution?</a></h4>
+<p>Boards from silicon vendors have the advantage that they have a built-in debug/programming interface. Of course, these are usually terrible, and I try to stop using the interface as soon as possible &ndash; by writing and flashing some kind of &ldquo;chat&rdquo; program. As an example of terrible, the USB-serial interface that is part of the &ldquo;ezFET&rdquo; debug interface on the <a href="https://www.ti.com/tool/MSP-EXP430FR6989">MSP430FR6989 Launchpad</a> is very badly implemented: it has such high turnaround latency that any protocol with a lot of back-and-forth (such as my serial chat protocol) becomes very slow. Even though the connection is 115,200 bps, it ends up feeling more like a 2400 baud modem. Pulling off the jumpers that connect the ezFET to the MCU and patching in an external USB-serial device &ndash; such as a Prolific PL2303 or an FTDI 2232 &ndash; dramatically increases the snappiness of the interface. So it is absolutely the fault of the ezFET and not something to do with the host machine&rsquo;s USB implementation.</p>
+<p>My very simple USB chat &ndash; implemented on the S08JS16 in fewer than 512 bytes of code! &ndash; uses a handful of vendor-specific USB control requests to read and write memory, program the flash, and execute code. It has none of the latency problems of TI&rsquo;s USB serial interface. It is the main reason why I keep looking for target chips with built-in USB. My ideal is to use the vendor&rsquo;s debug interface exactly <em>once</em>: to program my own serial or USB chat code, and then ignore the vendor&rsquo;s interface thereafter.</p>
+<h4 id="freescalenxp-vs-st-micro"><a href="#freescalenxp-vs-st-micro">Freescale/NXP vs ST Micro</a></h4>
+<p>What interesting and inexpensive boards are available from vendors? And which vendors are we interested in supporting?</p>
+<p>This latter question arises from my experience of watching NXP destroy the microcontroller lines they &ldquo;inherited&rdquo; when they absorbed Freescale. I am thinking of the <a href="https://www.nimblemachines.com/freescale-s08/">HCS08</a> and Kinetis lines here.</p>
+<p>In the case of the HCS08 &ndash; a huge personal favorite of mine, for <a href="/2008/#why-am-i-bothering-with-freescales-hcs08">lots of reasons</a> &ndash; they seem to be burying it. They are not announcing much activity or new parts. They have also tripled prices, making the parts very unattractive for new users. Generally it seems like they just want the HCS08 to go away.</p>
+<p>The Kinetis parts &ndash; which were very aggressively priced at their introduction, strongly competing with the HCS08 &ndash; are also more expensive now, as are the FRDM boards.</p>
+<p>The Cortex-M0+ based Kinetis L is a sort of cousin to the HCS08. In particular, the peripherals are mostly the same 8-bit peripherals as on the HCS08. I was excited about this because the KL25 &ndash; the chip on the original FRDM board, the FRDM-KL25Z &ndash; has a USB interface on-chip that is a superset of the USB interface on the S08JS16. I had high hopes &ndash; still unrealized &ndash; of writing USB chat code for this board &ndash; which, <a href="https://www.nimblemachines.com/fixing-the-frdm-firmware/">as I have documented elsewhere</a>, has a truly terrible debug interface that is better avoided.</p>
+<p>If we were to give up on NXP, but still want to explore the (very popular) world of Cortex-M parts, where should we turn?</p>
+<p>Even though they also have a terrible on-board debug story (see? it&rsquo;s true everywhere), I have been making an effort to support ST Micro&rsquo;s STM32 parts. I love the variety of Discovery boards that they offer, and all of them are still <em>very</em> aggressively priced. Because they have on-board ST-LINK (their debug interface) it&rsquo;s possible to simply plug one into a USB port on your Linux, BSD, or OSX machine, fire up muforth, and say hello.</p>
+<p>Two of the Discovery boards in particular &ndash; the <a href="https://www.st.com/en/evaluation-tools/32f072bdiscovery.html">STM32F072B-DISCOVERY</a> and the <a href="https://www.st.com/en/evaluation-tools/stm32f3discovery.html">STM32F3-DISCOVERY</a> &ndash; sport chips with a built-in USB interface, so it should be possible to use the ST-LINK to write and debug custom USB firmware, and then program this onto the board. In fact, ST&rsquo;s chips with USB interfaces support DFU (device firmware upgrade) over USB in ROM, so it&rsquo;s in theory possible to plug in a brand-new Discovery board, fire up muforth, and immediately flash the USB chat firmware &ndash; completely ignoring the ST-LINK. (Of course, I still have to write the USB chat firmware. And I have to write an interface to the DFU code, but it&rsquo;s pretty simple and well documented.)</p>
+<p>The STM32F072 Discovery costs $10, and the STM32F3 Discovery costs about $15. This is a perfect price point for a classroom setting, or for impoverished students. Since muforth is free, and since using it requires <em>no</em> vendor software, it&rsquo;s a great way to get started. ;-)</p>
+<p>The Cortex-M ARM world is a bit complex for beginners, though. Is there something that is a bit simpler?</p>
+<h4 id="i-still-love-the-freescale-s08"><a href="#i-still-love-the-freescale-s08">I still love the Freescale S08</a></h4>
+<p>Since I first started working with it in 2008, I have remained a huge fan of the <a href="https://www.nimblemachines.com/freescale-s08/">Freescale HCS08</a> &ndash; one reason it is so frustrating that NXP is basically burying it. The HCS08 is descended from the 6800, and anyone who is a fan of this kind of architecture will recognize the lineage. While rather register-starved &ndash; in particular, having one stack pointer and one index register &ndash; putting Forth onto the HCS08 is a challenge, but I <a href="/2009/#putting-forth-on-the-freescale-s08">figured out an elegant approach</a>.</p>
+<p>I have used various HCS08 parts &ndash; the S08QG8, S08QE32, and S08JS16 &ndash; to program other S08 parts, and also to program AVR and PIC18 parts. It&rsquo;s very simple and a lot of fun.</p>
+<p>The Forth support in muforth is limited, however. I have mostly been using muforth to program the S08 in <em>assembler</em>.</p>
+<h4 id="msp430-made-for-forth"><a href="#msp430-made-for-forth">MSP430 &ndash; made for Forth!</a></h4>
+<p>There is a curious architecture which lies between the S08 and the Cortex-M parts: TI&rsquo;s MSP430.</p>
+<p>This is a 16-bit microcontroller family that is strongly reminiscent of the PDP-11 and 68000. In particular, it has really nice auto-increment addressing modes, making writing an indirect-threaded Forth almost trivial. The instruction set &ndash; as long as you limit yourself to the pure 16-bit instructions and ignore the CPUX extensions &ndash; is very simple and easy to understand. It was an easy task to write an assembler, disassembler, and Forth compiler for this architecture, and I think it would be a nice introduction to the world of microcontrollers.</p>
+<p>Having originally targeted a breadboarded <a href="https://www.ti.com/product/MSP430G2553">MSP430G2553</a> (using the horrible BSL to get my chat code flashed onto it), I have since added support for the <a href="https://www.ti.com/product/MSP430FR6989">MSP430FR6989</a> (because of a <a href="https://www.ti.com/tool/MSP-EXP430FR6989">Launchpad board</a> that supports it). But I recently discovered an even better option: the <a href="https://www.ti.com/product/MSP430F5529">MSP430F5529</a>. This also has a <a href="https://www.ti.com/tool/MSP-EXP430F5529LP">Launchpad board</a>, and this chip is distinguished by its on-chip USB support. Like the STM32 Discovery boards, it should be possible to write a simple USB chat and flash it onto the chip. Avoiding the broken ezFET debug interface on these boards is a high priority!</p>
+<p>The <a href="https://www.ti.com/tool/MSP-EXP430F5529LP">MSP430F5529 Launchpad</a> costs about $13 from TI. It might be the sweet spot of approachability for newcomers to microcontrollers, Forth elegance, and cost.</p>
+<hr />
+<p>Read the <a href="/2018/">2018 journal</a>.</p>
+
+</div>
+
+<div id="footer">
+<hr />
+<a href="mailto:%77%65%62%68%61%6d%73%74%65%72%40%6e%69%6d%62%6c%65%6d%61%63%68%69%6e%65%73%2e%63%6f%6d?subject=%5bmuforth%5d%202020%20journal">Send feedback</a> on this page (last edited 2020 May 03 18:00)<br />
+Browse <a href="/all-pages/">all pages</a>, or return <a href="/">home</a><br />
+<a href="https://twitter.com/share?url=https%3a%2f%2fwww.muforth.dev%2f2020%2f&text=Say%20something%20nice!">Tweet</a> this page, or follow <a href="https://twitter.com/muforth">@muforth</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="copyright" content="All content on muforth.dev is copyrighted. All rights are reserved." />
+<meta name="description" content="Using USB serial adapters can be tricky. Depending on the USB serial chip being used &ndash; and whether it enumerates as a class-compliant device, or a chip-specific driver enumerates it &ndash; it can show up in the /dev directory with a variety of names. We explore some of the possibilities." />
+<meta name="keywords" content="Mac, Macintosh, OSX, macOS, BSD, Linux, USB, USB serial, CDC-ACM, tty, serial port, ttyACM, ttyUSB, tty.usbmodem, tty.usbserial, cu.usbmodem, cu.usbserial, FTDI, FTDI FT2232, FTDI FT4232, Prolific, PL2303" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:description" content="Using USB serial adapters can be tricky. Depending on the USB serial chip being used &ndash; and whether it enumerates as a class-compliant device, or a chip-specific driver enumerates it &ndash; it can show up in the /dev directory with a variety of names. We explore some of the possibilities." />
+<meta name="twitter:image" content="https://www.muforth.dev/-/9s08_hc595_640x640.jpg" />
+<meta name="twitter:site" content="@muforth" />
+<meta name="twitter:title" content="Using USB serial adapters" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/-/screen.css" type="text/css" />
+<link rel="icon" href="/-/9s08_hc595_150x150.jpg" type="image/jpeg" />
+<link rel="canonical" href="https://www.muforth.dev/using-usb-serial-adapters/" />
+<title>Using USB serial adapters &ndash; muforth</title>
+</head>
+<body>
+
+<div id="header">
+<h1>Using USB serial adapters</h1>
+<hr />
+</div>
+
+<div id="content">
+<p>When connecting to a target via a serial port, muforth opens the file <code>muforth/mu/serial-target</code> and expects it to be a symbolic link to a serial port of some kind that is connected to the external target device.</p>
+<p>Since most modern machines lack &ldquo;legacy&rdquo; RS-232 ports, the serial ports we primarily use are provided by external USB serial adapters. These come in two flavors:</p>
+<ul>
+<li>CDC-ACM, or &ldquo;class compliant&rdquo; USB serial devices</li>
+<li>devices enumerated by a chip-specific driver (eg, FTDI FT2232, Prolific PL2303)</li>
+</ul>
+<p>After enumeration, the device will show up in the <code>/dev</code> directory, but the <em>name</em> of the device depends <em>both</em> on the operating system <em>and</em> whether the device uses a class-compliant or chip-specific driver. In order to figure out which serial port device our external target is connected to, we need to do some sleuthing!</p>
+<p>In the case of the Launchpad and the HiFive1 &ndash; which I use here as examples &ndash; we want to connect to the <em>second</em> interface. The first one is the debugger connection; the second connects to the target&rsquo;s UART.</p>
+<p>Once you have found a likely candidate in <code>/dev</code> you&rsquo;ll need to make a symbolic link so muforth can find the device. I usually do it like this:</p>
+<pre>
+  cd muforth/mu
+  ln -sf /dev/&lt;something&gt; serial-target
+</pre>
+<p>I&rsquo;ll talk separately about how each OS names these devices.</p>
+<h3 id="linux"><a href="#linux">Linux</a></h3>
+<p>On Linux, class-compliant USB serial devices enumerate as <code>/dev/ttyACM</code> devices, while devices with chip-specific drivers enumerate as <code>/dev/ttyUSB</code> devices.</p>
+<p>Here is what I get with some of the devices I have on hand:</p>
+<p>MSP430FR6989 Launchpad:</p>
+<pre>
+  crw-rw---- 1 david serial 166, 0 Apr 11 13:08 /dev/ttyACM0
+  crw-rw---- 1 david serial 166, 1 Apr 11 13:08 /dev/ttyACM1
+</pre>
+<p>A random Prolific PL2303-based interface:</p>
+<pre>
+  crw-rw---- 1 root serial 188, 0 Apr 11 13:06 /dev/ttyUSB0
+</pre>
+<p>FTDI FT4232H Mini Module:</p>
+<pre>
+  crw-rw---- 1 david serial 188, 0 Apr 11 13:10 /dev/ttyUSB0
+  crw-rw---- 1 david serial 188, 1 Apr 11 13:10 /dev/ttyUSB1
+  crw-rw---- 1 david serial 188, 2 Apr 11 13:10 /dev/ttyUSB2
+  crw-rw---- 1 david serial 188, 3 Apr 11 13:10 /dev/ttyUSB3
+</pre>
+<p>HiFive1 (original, which uses an FTDI FT2232):</p>
+<pre>
+  crw-rw---- 1 david serial 188, 0 Apr 11 13:19 /dev/ttyUSB0
+  crw-rw---- 1 david serial 188, 1 Apr 11 13:19 /dev/ttyUSB1
+</pre>
+<p>We can see that all but the Launchpad have chip-specific drivers.</p>
+<h3 id="osxmacos"><a href="#osxmacos">OSX/macOS</a></h3>
+<p>OSX (macOS) has a BSD heritage that &ndash; unlike Linux &ndash; makes a distinction between terminal (or serial) interfaces intended for incoming connections (call-in) and outgoing connections (call-out).</p>
+<p>When using a Mac to communicate with target boards via USB serial adapters it is important to use the <code>cu</code> (call-out unit) device, rather than the associated <code>tty</code> (call-in) device.</p>
+<p>USB serial devices supported by a chip-specific driver enumerate as <code>/dev/cu.usbserial</code> devices. CDC-ACM class-compliant devices enumerate as <code>/dev/cu.usbmodem</code> devices.</p>
+<p>Here is what I get with my devices on hand.</p>
+<p>By listing <code>/dev/cu.u*</code> we can skip the Bluetooth devices which would show up if we instead listed <code>/dev/cu.*</code>.</p>
+<p>MSP430FR6989 Launchpad:</p>
+<pre>
+  $ ls -l /dev/cu.u*
+  crw-rw-rw-  1 root  wheel   21,  27 Mar 11 14:47 /dev/cu.usbmodemFA1331
+  crw-rw-rw-  1 root  wheel   21,  29 Mar 11 14:47 /dev/cu.usbmodemFA1333
+</pre>
+<p>FTDI FT4232H Mini Module:</p>
+<pre>
+  $ ls -l /dev/cu.u*
+  crw-rw-rw-  1 root  wheel   21,  41 Mar 11 17:44 /dev/cu.usbserial-FT0QE6FS0
+  crw-rw-rw-  1 root  wheel   21,  37 Mar 11 17:44 /dev/cu.usbserial-FT0QE6FS1
+  crw-rw-rw-  1 root  wheel   21,  39 Mar 11 17:44 /dev/cu.usbserial-FT0QE6FS2
+  crw-rw-rw-  1 root  wheel   21,  35 Mar 11 17:44 /dev/cu.usbserial-FT0QE6FS3
+</pre>
+<p>HiFive1 (original, which uses an FTDI FT2232):</p>
+<pre>
+  $ ls -l /dev/cu.u*
+  crw-rw-rw-  1 root  wheel   21,  33 Mar 11 15:19 /dev/cu.usbserial-FA13300
+  crw-rw-rw-  1 root  wheel   21,  31 Mar 11 15:19 /dev/cu.usbserial-FA13301
+</pre>
+<p>For a while I was having bad luck with the Prolific driver on the Mac. Later I realized that my troubles were not with the driver <em>per se</em> but with using the <code>tty.usbserial</code> device rather than the <code>cu.usbserial</code> device! The Prolific driver works fine. However, I didn&rsquo;t capture the results on my Mac, and it&rsquo;s now in storage! So I can&rsquo;t share them here.</p>
+<p>As with Linux, only the Launchpad enumerates as a <code>cu.usbmodem</code> (class-compliant) device.</p>
+<h3 id="bsd-all-flavors"><a href="#bsd-all-flavors">BSD (all flavors)</a></h3>
+<p>All of the BSDs make a distinction between call-in and call-out devices, but make <em>no</em> distinction in the naming of the resulting device based on whether the device has a chip-specific driver or not. So things are slightly simpler. We just want to find the call-out devices and try them!</p>
+<p>On FreeBSD and OpenBSD, call-out devices resulting from enumerating a USB serial device show up as <code>/dev/cuaU</code> devices.</p>
+<p>On NetBSD, these show up as <code>/dev/dtyU</code> devices. (Why the departure from convention, I wonder?)</p>
+
+</div>
+
+<div id="footer">
+<hr />
+<a href="mailto:%77%65%62%68%61%6d%73%74%65%72%40%6e%69%6d%62%6c%65%6d%61%63%68%69%6e%65%73%2e%63%6f%6d?subject=%5bmuforth%5d%20Using%20USB%20serial%20adapters">Send feedback</a> on this page (last edited 2021 July 05 15:11)<br />
+Browse <a href="/all-pages/">all pages</a>, or return <a href="/">home</a><br />
+<a href="https://twitter.com/share?url=https%3a%2f%2fwww.muforth.dev%2fusing-usb-serial-adapters%2f&text=Say%20something%20nice!">Tweet</a> this page, or follow <a href="https://twitter.com/muforth">@muforth</a>
+</div>
+
+</body>
+</html>

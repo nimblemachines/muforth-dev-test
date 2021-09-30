@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="copyright" content="All content on muforth.dev is copyrighted. All rights are reserved." />
+<meta name="keywords" content="2018, journal, blog" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/-/screen.css" type="text/css" />
+<link rel="icon" href="/-/9s08_hc595_150x150.jpg" type="image/jpeg" />
+<link rel="canonical" href="https://www.muforth.dev/2018/" />
+<title>2018 journal &ndash; muforth</title>
+</head>
+<body>
+
+<div id="header">
+<h1>2018 journal</h1>
+<hr />
+</div>
+
+<div id="content">
+<h3 id="december-21-12:05"><a href="#december-21-12:05">2018 December 21 12:05</a></h3>
+<p>I thought that there should be <em>at least one</em> post from 2018. So here it is!</p>
+<p>Contrary to appearances, muforth is <em>not</em> dead! I&rsquo;ve been working &ndash; sometimes feverishly! &ndash; on muforth since my last post in the spring of 2017, but I&rsquo;ve obviously been terrible about reporting on the project&rsquo;s progress.</p>
+<p>For the last couple of weeks I have been focused on two related projects. One project generates muforth equates files for <a href="https://www.nxp.com/products/processors-and-microcontrollers/arm-based-processors-and-mcus/kinetis-cortex-m-mcus:KINETIS">NXP/Freescale Kinetis ARM processors</a> from <a href="http://www.keil.com/pack/doc/CMSIS/SVD/html/">CMSIS-SVD</a> files (initially focused on supporting the Freescale FRDM boards); the other generates equates from ST Micro&rsquo;s C .h files for their <a href="https://www.st.com/en/microcontrollers/stm32-32-bit-arm-cortex-mcus.html">STM32F0, F1, F4, and L1 processors</a> (initially focusing on four chips found on their series of <a href="https://www.st.com/en/evaluation-tools/stm32-mcu-discovery-kits.html">Discovery boards</a>: STM32F051x8, STM32F303xC, STM32F407xx, and STM32L152xB).</p>
+<p>The <a href="https://github.com/nimblemachines/kinetis-chip-equates">Kinetis project is on GitHub</a>; the STM32 project is currently not public, but I&rsquo;m hoping to change that soon.</p>
+<p>Maybe 2019 will be the year that muforth really shines on Cortex-M hardware!</p>
+<hr />
+<p>Of course, that&rsquo;s not all that has happened. Since my last update in May 2017 there have been 182 commits to the project! Scrolling through the git log, I find the following points of interest:</p>
+<ul>
+<li>Support for <a href="http://www.ti.com/product/msp430fr6989">MSP430FR6989</a> added, including (and especially!) support for the LCD on the <a href="http://www.ti.com/tool/msp-exp430fr6989">MSP430FR6989 Launchpad</a></li>
+<li>CRC experiments, including fixing TI&rsquo;s totally messed-up documentation for the CRC32 device on the MSP430FR6989</li>
+<li>Tons of changes to the S08 code, including an improved version of the S08JS16 USB chat firmware that works with Chromebooks (and USB 3.0); test versions of USB-MIDI firmware; improved BDM support; effective address support in the disassembler (ie, interactively follow jumps and calls in the code); improvements to chat and flashing code</li>
+<li>A working, indirect-threaded Cortex-M0 Forth that runs (in RAM) on all the Cortex-M ARM hardware I own (a <a href="https://www.nimblemachines.com/cheap-cortex-m-boards/#frdm-kl25z">FRDM-KL25Z</a>, <a href="https://www.nimblemachines.com/cheap-cortex-m-boards/#stm32f0-discovery">STM32F0 Discovery</a>, STM32L1 Discovery, and <a href="https://www.nimblemachines.com/cheap-cortex-m-boards/#stm32f4-discovery">STM32F4 Discovery</a>)</li>
+<li>Improved <a href="https://www.nimblemachines.com/cmsis-dap/">CMSIS-DAP</a> support (still a work-in-progress)</li>
+<li>Support &ndash; or help anyway &ndash; for using Freescale&rsquo;s Cortex-M0+ bit manipulation engine (BME), and also for Cortex-M3/M4 bitbanding</li>
+<li>Better support for using USB devices on BSD systems (work-in-progress)</li>
+<li>and sundry small cleanups and changes to the core muforth system</li>
+</ul>
+<hr />
+<p>Read the <a href="/2017/">2017 journal</a>.</p>
+
+</div>
+
+<div id="footer">
+<hr />
+<a href="mailto:%77%65%62%68%61%6d%73%74%65%72%40%6e%69%6d%62%6c%65%6d%61%63%68%69%6e%65%73%2e%63%6f%6d?subject=%5bmuforth%5d%202018%20journal">Send feedback</a> on this page (last edited 2018 December 21 12:11)<br />
+Browse <a href="/all-pages/">all pages</a>, or return <a href="/">home</a><br />
+<a href="https://twitter.com/share?url=https%3a%2f%2fwww.muforth.dev%2f2018%2f&text=Say%20something%20nice!">Tweet</a> this page, or follow <a href="https://twitter.com/muforth">@muforth</a>
+</div>
+
+</body>
+</html>

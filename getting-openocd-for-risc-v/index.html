@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="copyright" content="All content on muforth.dev is copyrighted. All rights are reserved." />
+<meta name="description" content="muforth needs a RISC-V-enabled version of openocd in order to talk to the HiFive1 board. Can we download one from somewhere, or do we have to build it ourselves?" />
+<meta name="keywords" content="jtag, debug, openocd, riscv, risc-v, sifive" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:description" content="muforth needs a RISC-V-enabled version of openocd in order to talk to the HiFive1 board. Can we download one from somewhere, or do we have to build it ourselves?" />
+<meta name="twitter:image" content="https://www.muforth.dev/-/hifive1-board.jpg" />
+<meta name="twitter:site" content="@muforth" />
+<meta name="twitter:title" content="Getting openocd for RISC-V" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/-/screen.css" type="text/css" />
+<link rel="icon" href="/-/9s08_hc595_150x150.jpg" type="image/jpeg" />
+<link rel="canonical" href="https://www.muforth.dev/getting-openocd-for-risc-v/" />
+<title>Getting openocd for RISC-V &ndash; muforth</title>
+</head>
+<body>
+
+<div id="header">
+<h1>Getting openocd for RISC-V</h1>
+<hr />
+</div>
+
+<div id="content">
+<p>If you want to use the HiFive1 with <a href="/">muforth</a> you currently have to use the RISC-V port of <code>openocd</code>. You could <a href="https://github.com/riscv/riscv-openocd">download the source</a> and build it, but there is an easier way!</p>
+<h3 id="getting-pre-built-binaries-from-sifive"><a href="#getting-pre-built-binaries-from-sifive">Getting pre-built binaries from SiFive</a></h3>
+<p><a href="https://www.sifive.com/">SiFive</a> have made available pre-built versions of GCC and openocd on their <a href="https://www.sifive.com/software">software</a> page. You can visit that page and scroll down until you find the GCC and openocd links, or you can use the convenience links below (which I&rsquo;ll try to keep updated):</p>
+<ul>
+<li><a href="https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.12/riscv-openocd-0.10.0-2020.12.1-x86_64-w64-mingw32.zip">riscv-openocd-0.10.0-2020.12.1 for Windows (64-bit)</a></li>
+<li><a href="https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.12/riscv-openocd-0.10.0-2020.12.1-x86_64-apple-darwin.tar.gz">riscv-openocd-0.10.0-2020.12.1 for macOS (64-bit)</a></li>
+<li><a href="https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.12/riscv-openocd-0.10.0-2020.12.1-x86_64-linux-centos6.tar.gz">riscv-openocd-0.10.0-2020.12.1 for Linux (CentOS 6 64-bit)</a></li>
+<li><a href="https://static.dev.sifive.com/dev-tools/freedom-tools/v2020.12/riscv-openocd-0.10.0-2020.12.1-x86_64-linux-ubuntu14.tar.gz">riscv-openocd-0.10.0-2020.12.1 for Linux (Ubuntu 64-bit)</a></li>
+</ul>
+<h3 id="messing-about-with-dynamically-linked-libraries"><a href="#messing-about-with-dynamically-linked-libraries">Messing about with dynamically-linked libraries</a></h3>
+<p>For the Linux versions, libusb and libftdi can cause problems. (Why oh why don&rsquo;t they statically link these libraries?!?)</p>
+<p>I tried both the CentOS and Ubuntu versions on my laptop (a Gentoo-based chroot on a Chromebook) and found that the Ubuntu version needed but didn&rsquo;t bundle a copy of <code>libftdi.so</code>. The CentOS version did, and while it is dynamically linked to <code>libusb.so</code>, the archive contains a local copy &ndash; but needs some help in order to find it..</p>
+<p>I&rsquo;ve modified the <code>target/RISC-V/start-openocd.sh</code> script to be more flexible about how it locates libusb, to make all this a bit easier. Edit that file and change the <code>openocd</code> variable so it references <em>your</em> local copy of the RISC-V <code>openocd</code>, and point the <code>libusb_dir</code> at a directory that contains libusb. If you are using the CentOS version, then <code>&lt;wherever&gt;/riscv-openocd-&lt;version&gt;-x86_64-linux-centos6/lib</code> will work.</p>
+<p>The Mac version worked without any library problems.</p>
+<p>When I originally wrote this page in 2017 I created issues (<a href="https://github.com/sifive/cinco/issues/23">#23</a> and <a href="https://github.com/sifive/cinco/issues/24">#24</a>) against the pre-built <code>openocd</code> binaries. The Mac situation has improved, but Linux is still somewhat messed up.</p>
+<hr />
+<p>Return to <a href="/getting-started-with-risc-v/">exploring RISC-V with muforth</a>.</p>
+
+</div>
+
+<div id="footer">
+<hr />
+<a href="mailto:%77%65%62%68%61%6d%73%74%65%72%40%6e%69%6d%62%6c%65%6d%61%63%68%69%6e%65%73%2e%63%6f%6d?subject=%5bmuforth%5d%20Getting%20openocd%20for%20RISC-V">Send feedback</a> on this page (last edited 2021 May 04 10:15)<br />
+Browse <a href="/all-pages/">all pages</a>, or return <a href="/">home</a><br />
+<a href="https://twitter.com/share?url=https%3a%2f%2fwww.muforth.dev%2fgetting-openocd-for-risc-v%2f&text=Say%20something%20nice!">Tweet</a> this page, or follow <a href="https://twitter.com/muforth">@muforth</a>
+</div>
+
+</body>
+</html>
